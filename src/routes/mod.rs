@@ -1,31 +1,30 @@
-use rocket::{get,post,put,delete, http::Status, serde::json::Json};
+use rocket::{get, http::Status, serde::json::Json};
 
 pub mod user_data;
+pub mod token;
+pub mod validator_authorization;
 
 #[get("/hola")]
 pub fn hola() -> Result<Json<String>, Status> {
     Ok(Json(String::from("Hello from rust and mongoDB")))
 }
 
-
-#[get("/hello/<name>")]
-pub fn hello(name: &str) -> String {
-    format!("Hello, {}!", name)
+pub enum TypeValidDataFromRegistration {
+    Ok,
+    BadFirstName,
+    BadLastName,
+    BadLogin,
+    BadPassword,
+    BadMail,
 }
 
-#[put("/hello/<name>")]
-pub fn hello_put(name: &str) -> String {
-    format!("Hello, {}!", name)
+pub enum TypeValidTwoStr {
+    Ok,
+    BadFirst,
+    BadSecond,
 }
 
-// ADD POST METHOD HTTP
-#[post("/hello/<name>")]
-pub fn hello_post(name: &str) -> String {
-    format!("Hello, {}!", name)
-}
-
-// ADD DELETE METHOD HTTP
-#[delete("/hello/<name>")]
-pub fn hello_delete(name: &str) -> String {
-    format!("Hello, {}!", name)
+pub enum TypeValidMail {
+    Ok,
+    BadMail,
 }

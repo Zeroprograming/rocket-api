@@ -9,25 +9,30 @@ use rocket::serde::json::Json;
 use rocket_cors::{AllowedOrigins, CorsOptions};
 
 // Constans and database
+use crate::helper::check_valid_text;
 use crate::error_response::error_responses::{
     ErrorResponse, NOT_FOUND_JSON, UNAUTHORIZED_JSON, UNKNOWN_JSON,
 };
 use crate::constants::{UNAUTHORIZED, UNKNOWN};
 use crate::database::connect_to_db::init;
 
+use crate::routes::user_data::registration::registration;
+
+
 
 // Add the modules
 pub mod error_response;
 pub mod constants;
+mod helper;
+
 mod routes;
 mod models;
 mod private;
 mod database;
 
-
 #[get("/")]
 fn hello() -> Result<Json<String>, Status> {
-    Ok(Json(String::from("Welcome to my API from Rocket.rs")))
+    Ok(Json(String::from("Welcome to my API from Rocket.r")))
 }
 
 #[launch]
@@ -50,13 +55,10 @@ async fn rocket() -> _ {
         .mount(
             "/",
             routes![
+                registration,
                 routes::user_data::datauser,
                 hello,
-                routes::hola,
-                routes::hello,
-                routes::hello_put,
-                routes::hello_post,
-                routes::hello_delete
+                routes::hola
             ],
         )
         .manage(cors.to_cors())
@@ -66,16 +68,20 @@ async fn rocket() -> _ {
         )
 }
 
+// Respuesta status code 401
 #[catch(401)]
 pub fn unauthorized() -> Json<ErrorResponse> {
     Json(UNAUTHORIZED_JSON)
 }
 
+
+// Respuesta status code 404
 #[catch(404)]
 pub fn not_found() -> Json<ErrorResponse> {
     Json(NOT_FOUND_JSON)
 }
 
+// Respuesta status code 500
 #[catch(500)]
 pub fn internal_sever_error() -> Json<ErrorResponse> {
     Json(UNKNOWN_JSON)
