@@ -19,13 +19,10 @@ use crate::database::connect_to_db::init;
 use crate::routes::user_data::registration::registration;
 use crate::routes::user_data::login::login;
 
-
-
 // Add the modules
 pub mod error_response;
 pub mod constants;
 mod helper;
-
 mod routes;
 mod models;
 mod private;
