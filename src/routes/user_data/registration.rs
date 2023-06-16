@@ -3,39 +3,46 @@ use rocket::serde::json::Json;
 use rocket::State;
 
 use crate::constants::{
-    ALREADY_REGISTERED_LOGIN, ALREADY_REGISTERED_MAIL, LEN_FIRST_NAME, LEN_LAST_NAME, LEN_LOGIN,
+    ALREADY_REGISTERED_MAIL, LEN_FIRST_NAME, LEN_LAST_NAME, LEN_NICK_NAME,
     LEN_PASSWORD, UNKNOWN, WEAK_LOGIN, WEAK_PASSWORD, WRONG_FIRST_NAME, WRONG_LAST_NAME,
-    WRONG_MAIL, WRONG_REQUEST,
+    WRONG_MAIL, WRONG_REQUEST, LEN_LOGIN, WRONG_NICKNAME, ALREDY_REGISTERED_NICKNAME
 };
 
 use crate::database::connect_to_db::MongoDB;
 use crate::database::{RegistrationError};
 
-use crate::error_response::error_responses::ErrorResponse;
+use crate::error_response::error_responses::{ErrorResponse};
 use crate::models::request::registration_request::RegistrationRequest;
 use crate::models::tokens::Token;
 use crate::routes::user_data::RegistrationRequestError;
 use crate::routes::validator_authorization::valid_registration_data_user;
 use crate::routes::TypeValidDataFromRegistration;
 
+
+// Declaracion de la ruta de registration que es de formato json y recibe una data de nombre option_registration_request pero es un json de tipo RegistrationRequest
 #[post(
     "/registration",
     format = "json",
     data = "<option_registration_request>"
-)]
+)] 
+// Funcion Async que recibe como parametro un estado de tipo MongoDB y un option_registration_request de tipo RegistrationRequest
 pub async fn registration(
     database: &State<MongoDB>,
     option_registration_request: Option<Json<RegistrationRequest>>,
+    // Retorna un Result que es o Ok(Json<Token>) o Err((Status, Json<ErrorResponse>)
 ) -> Result<Json<Token>, (Status, Json<ErrorResponse>)> {
+    // Se hace un match a la funcion check_registration_request que recibe como parametro un option_registration_request
     match check_registration_request(option_registration_request) {
+        // Respuesta de tipo RegistrationRequestError que es un Enum que maneja diferentes tipos de respuestas y en base a ello respondemos
         RegistrationRequestError::Ok(registration_request) => {
+            // Se hace un match a la funcion database.registration que recibe como parametro un registration_request
             match database.registration(registration_request).await {
                 Ok(RegistrationError::Ok(token)) => Ok(Json(Token {
                     token: token.token,
                     refresh_token: token.refresh_token,
-                })),
+                })), 
                 Ok(RegistrationError::AlreadyRegisteredByEmail) => Err(ALREADY_REGISTERED_MAIL),
-                Ok(RegistrationError::AlreadyRegisteredByLogin) => Err(ALREADY_REGISTERED_LOGIN),
+                Ok(RegistrationError::AlreadyRegisteredByNickName) => Err(ALREDY_REGISTERED_NICKNAME),
                 Ok(RegistrationError::WrongPassword) => Err(WEAK_PASSWORD),
                 Ok(RegistrationError::Unknown) => Err(UNKNOWN),
                 Err(_) => Err(UNKNOWN),
@@ -47,6 +54,7 @@ pub async fn registration(
         RegistrationRequestError::BadLogin => Err(WEAK_LOGIN),
         RegistrationRequestError::BadPassword => Err(WEAK_PASSWORD),
         RegistrationRequestError::BadMail => Err(WRONG_MAIL),
+        RegistrationRequestError::BadNickName => Err(WRONG_NICKNAME),
     }
 }
 
@@ -58,9 +66,10 @@ fn check_registration_request(
         Some(registration_request) => {
             match valid_registration_data_user(
                 &registration_request,
+                LEN_LOGIN,
                 LEN_FIRST_NAME,
                 LEN_LAST_NAME,
-                LEN_LOGIN,
+                LEN_NICK_NAME,
                 LEN_PASSWORD,
             ) {
                 TypeValidDataFromRegistration::Ok => {
@@ -73,6 +82,7 @@ fn check_registration_request(
                 TypeValidDataFromRegistration::BadLogin => RegistrationRequestError::BadLogin,
                 TypeValidDataFromRegistration::BadPassword => RegistrationRequestError::BadPassword,
                 TypeValidDataFromRegistration::BadMail => RegistrationRequestError::BadMail,
+                TypeValidDataFromRegistration::BadNickName => RegistrationRequestError::BadNickName,
             }
         }
     }

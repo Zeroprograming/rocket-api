@@ -1,13 +1,6 @@
-use rocket::{get, http::Status, serde::json::Json};
-
 pub mod user_data;
 pub mod token;
 pub mod validator_authorization;
-
-#[get("/hola")]
-pub fn hola() -> Result<Json<String>, Status> {
-    Ok(Json(String::from("Hello from rust and mongoDB")))
-}
 
 pub enum TypeValidDataFromRegistration {
     Ok,
@@ -16,12 +9,14 @@ pub enum TypeValidDataFromRegistration {
     BadLogin,
     BadPassword,
     BadMail,
+    BadNickName,
 }
 
 pub enum TypeValidTwoStr {
     Ok,
     BadFirst,
     BadSecond,
+    BadThree,
 }
 
 pub enum TypeValidMail {

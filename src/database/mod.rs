@@ -13,13 +13,13 @@ pub enum LoginError {
 pub enum RegistrationError {
     Ok(Token),
     AlreadyRegisteredByEmail,
-    AlreadyRegisteredByLogin,
+    AlreadyRegisteredByNickName,
     WrongPassword,
     Unknown,
 }
 
 pub enum FindUserBy {
     UserNotFound,
-    UserFoundByLogin,
     UserFoundByEmail,
+    UserFoundByNickName,
 }

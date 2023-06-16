@@ -13,10 +13,11 @@ use crate::helper::check_valid_text;
 use crate::error_response::error_responses::{
     ErrorResponse, NOT_FOUND_JSON, UNAUTHORIZED_JSON, UNKNOWN_JSON,
 };
-use crate::constants::{UNAUTHORIZED, UNKNOWN};
+// use crate::constants::{UNAUTHORIZED, UNKNOWN};
 use crate::database::connect_to_db::init;
 
 use crate::routes::user_data::registration::registration;
+use crate::routes::user_data::login::login;
 
 
 
@@ -55,10 +56,9 @@ async fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                registration,
-                routes::user_data::datauser,
                 hello,
-                routes::hola
+                login,
+                registration,
             ],
         )
         .manage(cors.to_cors())

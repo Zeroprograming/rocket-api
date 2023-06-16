@@ -7,15 +7,12 @@ use crate::routes::{TypeValidDataFromRegistration, TypeValidMail, TypeValidTwoSt
 use regex::Regex;
 use rocket::serde::json::Json;
 
-
-
-
-
 pub fn valid_registration_data_user(
     registration_request: &Json<RegistrationRequest>,
+    max_min_len_login: LenText,
     max_min_len_first_name: LenText,
     max_min_len_last_name: LenText,
-    max_min_len_login: LenText,
+    max_min_len_nick_name: LenText,
     max_min_len_password: LenText,
 ) -> TypeValidDataFromRegistration {
     match get_valid_first_and_last_names(
@@ -25,9 +22,11 @@ pub fn valid_registration_data_user(
         max_min_len_last_name,
     ) {
         TypeValidTwoStr::Ok => {
-            match get_valid_login_and_password(
-                &registration_request.login,
+            match get_valid_login_nick_name_and_password(
+                &registration_request.mail,
                 &registration_request.password,
+                &registration_request.user_nickname,
+                max_min_len_nick_name,
                 max_min_len_login,
                 max_min_len_password,
             ) {
@@ -37,10 +36,12 @@ pub fn valid_registration_data_user(
                 },
                 TypeValidTwoStr::BadFirst => BadLogin,
                 TypeValidTwoStr::BadSecond => BadPassword,
+                TypeValidTwoStr::BadThree => BadNickName,
             }
         }
         TypeValidTwoStr::BadFirst => BadFirstName,
         TypeValidTwoStr::BadSecond => BadLastName,
+        TypeValidTwoStr::BadThree => BadNickName,
     }
 }
 
@@ -71,14 +72,38 @@ pub fn get_valid_first_and_last_names(
 }
 
 
+pub fn get_valid_login_nick_name_and_password(
+    login: &str,
+    password: &str,
+    nick_name: &str,
+    max_min_len_nick_name: LenText,
+    max_min_len_login: LenText,
+    max_min_len_password: LenText,
+) -> TypeValidTwoStr {
+    if check_valid_text(login, max_min_len_login.max, max_min_len_login.min) {
+        if check_valid_text(password, max_min_len_password.max, max_min_len_password.min) {
+            if check_valid_text(nick_name, max_min_len_nick_name.max, max_min_len_nick_name.min) {
+                TypeValidTwoStr::Ok
+            } else {
+                TypeValidTwoStr::BadThree
+            }
+        } else {
+            TypeValidTwoStr::BadSecond
+        }
+    } else {
+        TypeValidTwoStr::BadFirst
+    }
+}
+
+
 pub fn get_valid_login_and_password(
     login: &str,
     password: &str,
     max_min_len_login: LenText,
     max_min_len_password: LenText,
 ) -> TypeValidTwoStr {
-    if check_valid_text(login, max_min_len_login.max, max_min_len_login.min) {
-        if check_valid_text(password, max_min_len_password.max, max_min_len_password.min) {
+    if check_valid_text(login, max_min_len_login.max, max_min_len_login.min){
+        if check_valid_text(password, max_min_len_password.max, max_min_len_password.min){
             TypeValidTwoStr::Ok
         } else {
             TypeValidTwoStr::BadSecond

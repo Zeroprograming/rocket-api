@@ -1,13 +1,10 @@
-use rocket::{get, http::Status, serde::json::Json};
+use rocket::serde::json::Json;
 use crate::models::request::registration_request::RegistrationRequest;
+use crate::models::request::login_request::LoginRequest;
 
 
 pub mod registration;
-
-#[get("/datauser")]
-pub fn datauser() -> Result<Json<String>, Status> {
-    Ok(Json(String::from("Message from folder data")))
-}
+pub mod login;
 
 pub enum RegistrationRequestError {
     Ok(Json<RegistrationRequest>),
@@ -17,4 +14,12 @@ pub enum RegistrationRequestError {
     BadLogin,
     BadPassword,
     BadMail,
+    BadNickName,
+}
+
+pub enum LoginRequestError{
+    Ok(Json<LoginRequest>),
+    NoneLoginRequest,
+    BadLogin,
+    BadPassword,
 }

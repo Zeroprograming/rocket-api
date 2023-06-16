@@ -1,7 +1,7 @@
 use crate::models::tokens::Token;
-use mongodb::bson::oid::ObjectId;
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, TokenData, Validation};
 use chrono::Utc;
+use jsonwebtoken::{encode, EncodingKey, Header};
+use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
 pub enum EncodeJwtHelper {

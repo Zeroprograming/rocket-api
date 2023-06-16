@@ -25,16 +25,16 @@ pub fn check_valid_name(text: &str, max_size: usize, min_size: usize) -> bool {
 pub async fn find_user_by_login_and_mail(
     database: &MongoDB,
     mail: &str,
-    login: &str,
+    nick_name: &str,
 ) -> FindUserBy {
-    match database.find_user_by("login", login).await {
-        Ok(None) => match database.find_user_by("mail", mail).await {
+    match database.find_user_by("mail", mail).await {
+        Ok(None) => match database.find_user_by("data.user_nickname", nick_name).await {
             Ok(None) => FindUserBy::UserNotFound,
-            Ok(Some(_)) => FindUserBy::UserFoundByEmail,
-            Err(_) => FindUserBy::UserFoundByEmail,
+            Ok(Some(_)) => FindUserBy::UserFoundByNickName,
+            Err(_) => FindUserBy::UserFoundByNickName,
         },
-        Ok(Some(_)) => FindUserBy::UserFoundByLogin,
-        Err(_) => FindUserBy::UserFoundByLogin,
+        Ok(Some(_)) => FindUserBy::UserFoundByEmail,
+        Err(_) => FindUserBy::UserFoundByEmail,
     }
 }
 
